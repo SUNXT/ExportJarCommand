@@ -28,12 +28,11 @@ public class ManifestUtils {
                 }
             }
 
-            LogUtils.log("Manifest content start");
+            LogUtils.log("Manifest content are");
             LogUtils.log("----------------------");
             for (String str : lines) {
                 LogUtils.log(str);
             }
-            LogUtils.log("Manifest content end");
             LogUtils.log("----------------------");
 
             //处理出mainClass

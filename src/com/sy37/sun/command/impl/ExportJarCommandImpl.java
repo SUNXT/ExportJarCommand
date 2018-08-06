@@ -10,7 +10,7 @@ import java.util.Set;
 public class ExportJarCommandImpl implements IExportJarCommand{
 
     @Override
-    public void javac(String projectPath, String manifestPath) {
+    public boolean javac(String projectPath, String manifestPath) {
 
         LogUtils.log("Use javac command!!!");
 
@@ -18,19 +18,19 @@ public class ExportJarCommandImpl implements IExportJarCommand{
         File projectDir = new File(projectPath);
         if (!projectDir.exists()){
             LogUtils.log("The project is not exists! End...");
-            return;
+            return false;
         }
 
         File manifestFile = new File(manifestPath);
         if (!manifestFile.exists()){
             LogUtils.log("The manifest file is not exists! End...");
-            return;
+            return false;
         }
         //从配置文件中读出编译的Main类
         String mainClassPath = ManifestUtils.getMainClass(manifestPath);
         if ("".equals(mainClassPath)){
             LogUtils.log("The main class path is null! Enc...");
-            return;
+            return false;
         }
 
         LogUtils.log("Step 1: Find the dependent jar in libs dir...");
@@ -41,8 +41,10 @@ public class ExportJarCommandImpl implements IExportJarCommand{
             LogUtils.log("The project has libs dir, add libs path...");
             File[] files = libsDir.listFiles((dir, name) -> name.endsWith("jar"));
             if (files != null){
+                LogUtils.log("The dependent libs are");
                 for (File jarFile: files){
                     dependentLibPaths.add(jarFile.getPath());
+                    LogUtils.log(jarFile.getPath());
                 }
             }
         }else {
@@ -53,18 +55,19 @@ public class ExportJarCommandImpl implements IExportJarCommand{
         File srcDir = new File(projectPath + File.separator + "src");
         if (!srcDir.exists()){
             LogUtils.log("The src is not exist!!! End...");
-            return;
+            return false;
         }
 
         Set<String> packageSet = new HashSet<>();
         //通过递归查出所有包名
         findPackage(srcDir, packageSet);
+        LogUtils.log("All packages are:");
+        for (String packName: packageSet){
+            LogUtils.log(packName);
+        }
+
         //将所有包名添加要依赖库集合中
         dependentLibPaths.addAll(packageSet);
-
-        for (String packName: dependentLibPaths){
-            LogUtils.debug(packName);
-        }
 
         //处理编译后的class输出文件夹
         File classesOutputDir = new File(projectPath + File.separator + COMPILE_CLASS_DIR_NAME);
@@ -109,14 +112,26 @@ public class ExportJarCommandImpl implements IExportJarCommand{
                 if (process.exitValue() == 0)
                     LogUtils.log("exit...");
             }
-            LogUtils.log("Has success compile! The class output file is in " + classesOutputDir.getPath());
         }catch (Exception e){
             e.printStackTrace();
+            return false;
         }
+
+        //判断是否javac成功所有文件，初步判断，如果对应包名的文件夹不在对应的目录下，则表示编译过程中出现错误，返回false
+        for (String temp: packageSet){
+            File file = new File(temp.replace(srcDir.getPath(), classesOutputDir.getPath()));
+            if (!file.exists()){
+                LogUtils.log("Compile failed! Use javac command occur some error!");
+                classesOutputDir.delete();
+                return false;
+            }
+        }
+        LogUtils.log("Has success compile! The class output file is in " + classesOutputDir.getPath());
+        return true;
     }
 
     @Override
-    public void jar(String projectPath, String manifestPath, String outputJarPath) {
+    public boolean jar(String projectPath, String manifestPath, String outputJarPath) {
         LogUtils.log("Use the jar command!!");
 
         LogUtils.log("projectPath = " + projectPath);
@@ -160,14 +175,18 @@ public class ExportJarCommandImpl implements IExportJarCommand{
             Process process = Runtime.getRuntime().exec(jarCommand);
             LogUtils.printStream(process);
             if (process.waitFor() != 0) {
-                if (process.exitValue() == 0)
+                if (process.exitValue() == 0){
                     LogUtils.log("exit...");
+                    return false;
+                }
             }
             LogUtils.debug("Build jar success!!! Jar is in ->" + outputJarPath);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
+        return true;
     }
 
     /**

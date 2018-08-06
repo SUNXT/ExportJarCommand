@@ -1,5 +1,4 @@
 package com.sy37.sun.utils;
-
 import java.io.*;
 
 public class StreamLog extends Thread{
@@ -30,7 +29,7 @@ public class StreamLog extends Thread{
                 if (pw != null){
                     pw.println(line);
                 }
-                System.out.println(type + ">" + line);
+                LogUtils.log(type + ">>>>" + line);
             }
 
             if (pw != null) {

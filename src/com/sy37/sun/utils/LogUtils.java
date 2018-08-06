@@ -1,6 +1,9 @@
 package com.sy37.sun.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class LogUtils {
 
@@ -10,8 +13,17 @@ public class LogUtils {
         LogUtils.debug = debug;
     }
 
+    /**获取时间
+     * @return String
+     */
+    public static String getDate(){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+        format.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        return format.format(new Date());
+    }
+
     public static void log(String message){
-        System.out.println(new Date().toLocaleString() + " >>>> " + message);
+        System.out.println(getDate() + " >>>> " + message);
     }
 
     public static void debug(String message){
