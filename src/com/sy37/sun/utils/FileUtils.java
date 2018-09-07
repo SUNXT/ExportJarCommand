@@ -54,4 +54,20 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
+
+    public static void delDir(File file) {
+        if (file.exists()) {
+            if (file.isFile()) {
+                file.delete();
+            } else if (file.isDirectory()) {
+                File files[] = file.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    delDir(files[i]);
+                }
+            }
+            file.delete();
+        } else {
+            LogUtils.log("所删除的文件不存在！" + '\n');
+        }
+    }
 }

@@ -71,9 +71,7 @@ public class ExportJarCommandImpl implements IExportJarCommand{
 
         //处理编译后的class输出文件夹
         File classesOutputDir = new File(projectPath + File.separator + COMPILE_CLASS_DIR_NAME);
-        if (classesOutputDir.exists()){
-            classesOutputDir.delete();
-        }
+        FileUtils.delDir(classesOutputDir);
         classesOutputDir.mkdirs();
 
         //执行javac命令

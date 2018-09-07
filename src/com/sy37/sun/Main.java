@@ -13,7 +13,6 @@ public class Main {
         String projectPath = EnvUtils.getEnv(EnvUtils.PARAM_PACK_JAVA_PROJECT_PATH);
         String manifestPath = EnvUtils.getEnv(EnvUtils.PARAM_MANIFEST_PATH);
         String outputJarPath = EnvUtils.getEnv(EnvUtils.PARAM_EXPORT_JAR_OUTPUT_PATH);
-
 //        projectPath = "D:\\IntellijIDEA\\ExportJarCommand";
 //        manifestPath = projectPath + "\\src\\META-INF\\MANIFEST.MF";
 //        outputJarPath = projectPath + "\\test.jar";
